@@ -33,7 +33,7 @@ return function (App $app) {
 
       $this->get('/',UsuarioController::class . ':ingresosPorUsuario');
    
-    });
+    })->add(Middleware::class . ":validarToken");
 
     $app->group('/egreso', function () {
       

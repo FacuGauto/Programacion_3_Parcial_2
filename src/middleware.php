@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AutentificadorJWT;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -112,13 +113,66 @@ function detect()
 
 	class Middleware
 	{
-		/*public function ValidarToken($request, $response, $next)
+
+		public function log($request, $response, $next)
 		{
-			var_dump($request->getHeader('token'));
+			$token = "";
+			$usuario = "undefined";
+			if (array_key_exists("HTTP_TOKEN", $request->getHeaders())) {
+				try {
+					$token = $request->getHeader("token")[0];
+					AutentificadorJWT::VerificarToken($token);
+						$data = AutentificadorJWT::ObtenerData($token);
+						$data = $data->email . " - " . $data->legajo;
+						$usuario = $data;
+				} catch (\Exception $e) {
+					$newResponse = $response->withJson("sarasa", 200);
+				}
+			}
+			$ruta = $request->getRequestTarget();
+			$metodo = $request->getMethod();
+			$ip = $request->getServerParam('REMOTE_ADDR');
+			$fecha = date('Y-m-d H:i:s', $request->getServerParam('REQUEST_TIME'));
+			$log = new Log;
+			$log->ruta = $ruta;
+			$log->metodo = $metodo;
+			$log->usuario = $usuario;
+			$log->ip = $ip;
+			$log->fecha = $fecha;
+			$dao = new genericDao("./info.json");
+			$dao->guardar($log);
+			$newResponse = $next($request, $response); // Se va a la funcion NEXT
+			//$newResponse->getbody()->write("Log Creado" . " USUARIO: ". $usuario);
+			return $newResponse;
+		}
+
+
+
+
+		public function ValidarToken($request, $response, $next)
+		{
+			echo "ASAS";
+		//	if ($request->getHeader('token') != null) {
+		//		$token = $request->getHeader('token')[0];
+			//	var_dump($token);
+				/*try {
+					if (AutentificadorJWT::VerificarToken($token)) {
+						$usuario = AutentificadorJWT::ObtenerData($token);
+						$request = $request->withAttribute('usuario', $usuario);
+						$newResponse = $next($request, $response);
+					}
+				} catch (Exception $e) {
+					$newResponse = $response->withJson("Token invalido ".$e, 200);
+				}*/
+			//}else{
+			//	$newResponse = $response->withJson("No se ha recibido un token. Verificar", 200);
+			//}
+			//var_dump($request->getHeader('token'));
+			/*
         	$token = $request->getHeader('token');
         	if ($token != null) {
             	try {
-					echo "AAAAAAAAAAAAAAAAAAAAA";
+					//echo "AAAAAAAAAAAAAAAAAAAAA";
                 	$token = $request->getHeader('token')[0];
                 	if (AutentificadorJWT::VerificarToken($token)) {
                     	$usuario = AutentificadorJWT::ObtenerData($token);
@@ -129,9 +183,9 @@ function detect()
             	}
         	} else {
             	$newResponse = $response->withJson("No se ha recibido un token. Verificar e intentar nuevamente", 500);
-        	}
-        	return $newResponse;
-		}*/
+        	}*/
+        	//return $newResponse;
+		}
 		
 		public function EsAdmin($request, $response, $next)
 		{
